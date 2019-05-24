@@ -1,0 +1,27 @@
+#!/bin/bash -xe
+source /etc/profile.d/node.sh
+source /etc/environment
+NODE_DIR=/var/www
+MARKETPLACE_DIR=$NODE_DIR/hawkmarketplace.com
+LOG_DIR=/var/log/node/
+DYNAMO_DB=$MARKETPLACE_DIR/bootstrap/dynamoDB
+
+echo 'Starting deployment...'
+# CURL metadata to get instance infromation.
+AWS_REGION=`curl http://169.254.169.254/latest/dynamic/instance-identity/document|grep region|awk -F\" '{print $4}'`
+INSTANCE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+echo Instance IP: $INSTANCE_IP
+INSTANCE_HOSTNAME=$(curl -s http://169.254.169.254/latest/meta-data/local-hostname | cut -d '.' -f1)
+echo Instance HOSTNAME: $INSTANCE_HOSTNAME
+echo $INSTANCE_IP $INSTANCE_HOSTNAME | tee -a /etc/hosts
+
+# ensure proper permissions
+chown -R appuser:appuser ${MARKETPLACE_DIR}
+chown -R appuser:appuser ${LOG_DIR}
+
+# dynamo bootstrap
+cd $MARKETPLACE_DIR/bootstrap/dynamoDB
+sh AWSBootstrap.sh $AWS_REGION
+echo 'Check Node Version and install PM2...'
+node -v && npm -v
+echo 'Deploy complete!'

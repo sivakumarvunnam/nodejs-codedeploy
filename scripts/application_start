@@ -1,0 +1,11 @@
+#!/bin/bash -xe
+source /etc/profile.d/node.sh
+source /etc/environment
+MARKETPLACE_DIR=/var/www/hawkmarketplace.com
+SERVER_START=$MARKETPLACE_DIR/server/app.js
+APP_NAME=HawkMarketplace
+echo 'Starting Node back up...'
+echo $NODE_ENV
+cd $MARKETPLACE_DIR
+pm2 delete -s $APP_NAME || :
+pm2 start server/app.js --name $APP_NAME

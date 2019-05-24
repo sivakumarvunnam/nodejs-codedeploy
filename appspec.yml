@@ -1,0 +1,17 @@
+version: 0.0
+os: linux
+files:
+  - source: /source/
+    destination: /var/www/hawkmarketplace.com/
+permissions:
+  - object: /var/www/
+    mode: 775
+    owner: appuser
+    group: appuser
+hooks:
+  AfterInstall:
+    - location: scripts/after_install
+      runas: appuser
+  ApplicationStart:
+    - location: scripts/application_start
+      runas: appuser
